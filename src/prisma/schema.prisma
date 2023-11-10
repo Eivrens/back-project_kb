@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Pet {
+  id          String     @id @default(uuid())
+  name        String     @db.VarChar(20)
+  dt_birth    DateTime   @db.Date
+  gender      String     @db.Char(1)
+  color       String     @db.VarChar(20)
+  description String     @db.TinyText
+  situation   Int        @default(1) @db.TinyInt
+  finance     Finance[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  tutor       Tutor?     @relation(fields: [tutorId], references: [id])
+  tutorId     String?
+  procedure   Procedure? @relation(fields: [procedureId], references: [id])
+  procedureId String?
+
+  @@index([tutorId])
+  @@index([procedureId])
+  @@map("pets")
+}
+
+model Tutor {
+  id        String   @id @default(uuid())
+  name      String   @db.VarChar(30)
+  phone     String   @db.VarChar(11)
+  document  Json?    @db.Json
+  email     String?  @db.VarChar(50)
+  address   Json?    @db.Json
+  pets      Pet[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("tutors")
+}
+
+model Procedure {
+  id            String    @id @default(uuid())
+  name          String    @db.VarChar(70)
+  description   String?   @db.VarChar(512)
+  type          Int       @db.TinyInt
+  dt_start      DateTime  @db.Date @default(now())
+  dt_expiration DateTime? @db.Date
+  tm_interval   String?   @db.VarChar(30)
+  record        Json?     @db.Json
+  pets          Pet[]
+  finance       Finance[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("procedures")
+}
+
+model Finance {
+  id             String     @id @default(uuid())
+  title          String?    @db.VarChar(30)
+  description    String?    @db.VarChar(512)
+  value          Float      @db.Float
+  type           Int        @db.TinyInt
+  dt_start       DateTime   @db.Date @default(now())
+  dt_expiration  DateTime?  @db.Date
+  fix_finance    Boolean    @db.TinyInt
+  repeat_finance DateTime?  @db.Date
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  pet            Pet?       @relation(fields: [petId], references: [id])
+  petId          String?
+  procedure      Procedure? @relation(fields: [procedureId], references: [id])
+  procedureId    String?
+
+  @@index([petId])
+  @@index([procedureId])
+  @@map("finances")
+}
+
+model Stock {
+  id            String    @id @default(uuid())
+  title         String?   @db.VarChar(50)
+  type          Int       @db.TinyInt
+  amount        Float     @db.Float
+  dt_expiration DateTime? @db.Date
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("stock")
+}
