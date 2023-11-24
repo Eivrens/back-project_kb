@@ -15,14 +15,15 @@ model Pet {
   gender      String     @db.Char(1)
   color       String     @db.VarChar(20)
   description String     @db.TinyText
+  species     Int        @default(1) @db.TinyInt
   situation   Int        @default(1) @db.TinyInt
   finance     Finance[]
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
   tutor       Tutor?     @relation(fields: [tutorId], references: [id])
   tutorId     String?
   procedure   Procedure? @relation(fields: [procedureId], references: [id])
   procedureId String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
   @@index([tutorId])
   @@index([procedureId])
@@ -32,7 +33,7 @@ model Pet {
 model Tutor {
   id        String   @id @default(uuid())
   name      String   @db.VarChar(30)
-  phone     String   @db.VarChar(11)
+  phone     String   @db.VarChar(11) @unique
   document  Json?    @db.Json
   email     String?  @db.VarChar(50)
   address   Json?    @db.Json
@@ -48,7 +49,7 @@ model Procedure {
   name          String    @db.VarChar(70)
   description   String?   @db.VarChar(512)
   type          Int       @db.TinyInt
-  dt_start      DateTime  @db.Date @default(now())
+  dt_start      DateTime  @db.Date
   dt_expiration DateTime? @db.Date
   tm_interval   String?   @db.VarChar(30)
   record        Json?     @db.Json
@@ -66,16 +67,16 @@ model Finance {
   description    String?    @db.VarChar(512)
   value          Float      @db.Float
   type           Int        @db.TinyInt
-  dt_start       DateTime   @db.Date @default(now())
+  dt_start       DateTime   @db.Date
   dt_expiration  DateTime?  @db.Date
   fix_finance    Boolean    @db.TinyInt
   repeat_finance DateTime?  @db.Date
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
   pet            Pet?       @relation(fields: [petId], references: [id])
   petId          String?
   procedure      Procedure? @relation(fields: [procedureId], references: [id])
   procedureId    String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
 
   @@index([petId])
   @@index([procedureId])
