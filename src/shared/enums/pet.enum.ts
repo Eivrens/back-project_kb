@@ -1,10 +1,10 @@
-export enum situation {
-  Disponivel = 1,
-  Adotado = 2,
-  Triagem = 3,
+export enum situationPet {
+  disponivel = 1,
+  adotado = 2,
+  triagem = 3,
 }
 
-export enum species {
-  Gato = 1,
-  Cachorro = 2,
+export enum speciesPet {
+  gato = 1,
+  cachorro = 2,
 }
