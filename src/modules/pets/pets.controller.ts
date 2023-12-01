@@ -8,14 +8,15 @@ import {
   Delete,
 } from '@nestjs/common';
 import { PetsService } from './pets.service';
-import { PetDTO } from './pets.dto';
+import { CreatePetDTO } from './dto/create-pet.dto';
+import { UpdatePetDTO } from './dto/update-pet.dto';
 
 @Controller('pets')
 export class PetsController {
   constructor(private readonly petsService: PetsService) {}
 
   @Post('register')
-  async createPet(@Body() data: PetDTO) {
+  async createPet(@Body() data: CreatePetDTO) {
     return this.petsService.create(data);
   }
 
@@ -25,7 +26,7 @@ export class PetsController {
   }
 
   @Put(':id')
-  async updatePet(@Param('id') id: string, @Body() data: PetDTO) {
+  async updatePet(@Param('id') id: string, @Body() data: UpdatePetDTO) {
     return this.petsService.update(id, data);
   }
 
