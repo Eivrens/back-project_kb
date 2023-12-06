@@ -8,80 +8,136 @@ datasource db {
   relationMode = "prisma"
 }
 
+//------------------------- PET -------------------------------
+
 model Pet {
-  id          String     @id @default(uuid())
-  name        String     @db.VarChar(20)
-  dt_birth    DateTime   @db.Date
-  gender      String     @db.Char(1)
-  color       String     @db.VarChar(20)
-  description String     @db.TinyText
-  species     Int        @default(1) @db.TinyInt
-  situation   Int        @default(1) @db.TinyInt
-  finance     Finance[]
-  tutor       Tutor?     @relation(fields: [tutorId], references: [id])
-  tutorId     String?
-  procedure   Procedure? @relation(fields: [procedureId], references: [id])
-  procedureId String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id          String      @id @default(uuid())
+  name        String      @db.VarChar(20)
+  dt_birth    DateTime    @db.Date
+  gender      Gender
+  color       String      @db.VarChar(20)
+  description String      @db.TinyText
+  species     Species     @default(GATO)
+  situation   Situation   @default(ACOLHIDO)
+  finances    Finance[]
+  tutor       Tutor?      @relation(fields: [tutorId], references: [id])
+  tutorId     String?     @unique
+  procedures  Procedure[]
+  adoption    Adoption?   @relation(fields: [adoptionId], references: [id])
+  adoptionId  String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  activated   Boolean     @default(true) @db.TinyInt
+  deletedAt   DateTime?
 
   @@index([tutorId])
-  @@index([procedureId])
+  @@index([adoptionId])
   @@map("pets")
 }
 
+enum Species {
+  GATO
+  CACHORRO
+}
+
+enum Situation {
+  ACOLHIDO
+  DISPONIVEL
+  ADOTADO
+}
+
+//-------------------------- TUTOR --------------------------------------
+
 model Tutor {
-  id        String   @id @default(uuid())
-  name      String   @db.VarChar(30)
-  phone     String   @db.VarChar(11) @unique
-  document  Json?    @db.Json
-  email     String?  @db.VarChar(50)
-  address   Json?    @db.Json
-  pets      Pet[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String        @id @default(uuid())
+  name       String        @db.VarChar(40)
+  phone      String        @unique @db.VarChar(11)
+  gender     Gender
+  doc_type   DocumentType?
+  doc_number String?       @unique @db.VarChar(14)
+  email      String?       @unique @db.VarChar(50)
+  address    Json?         @db.Json
+  pets       Pet[]
+  adoptions  Adoption[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  activated  Boolean       @default(true)
+  deletedAt  DateTime?
 
   @@map("tutors")
 }
 
-model Procedure {
-  id            String    @id @default(uuid())
-  name          String    @db.VarChar(70)
-  description   String?   @db.VarChar(512)
-  type          Int       @db.TinyInt
-  dt_start      DateTime  @db.Date
-  dt_expiration DateTime? @db.Date
-  tm_interval   String?   @db.VarChar(30)
-  record        Json?     @db.Json
-  pets          Pet[]
-  finance       Finance[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+enum DocumentType {
+  CPF
+  RG
+  CNH
+  CNPJ
+}
 
+//--------------------------- PROCEDURE -----------------------------------------
+
+model Procedure {
+  id            String        @id @default(uuid())
+  name          String        @db.VarChar(70)
+  description   String?       @db.VarChar(512)
+  type          ProcedureType
+  dt_start      DateTime      @db.Date
+  dt_expiration DateTime?     @db.Date
+  tm_interval   String?       @db.VarChar(30)
+  record        Json?         @db.Json
+  finance       Finance?      @relation(fields: [financeId], references: [id])
+  financeId     String?       @unique
+  pet           Pet?          @relation(fields: [petId], references: [id])
+  petId         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  activated     Boolean       @default(true)
+  deletedAt     DateTime?
+
+  @@index([petId])
+  @@index([financeId])
   @@map("procedures")
 }
 
+enum ProcedureType {
+  VACINA
+  TESTE
+  CIRURGIA
+}
+
+//------------------------------- FINANCE -------------------------------------------
+
 model Finance {
-  id             String     @id @default(uuid())
-  title          String?    @db.VarChar(30)
-  description    String?    @db.VarChar(512)
-  value          Float      @db.Float
-  type           Int        @db.TinyInt
-  dt_start       DateTime   @db.Date
-  dt_expiration  DateTime?  @db.Date
-  fix_finance    Boolean    @db.TinyInt
-  repeat_finance DateTime?  @db.Date
-  pet            Pet?       @relation(fields: [petId], references: [id])
+  id             String      @id @default(uuid())
+  title          String?     @db.VarChar(30)
+  description    String?     @db.VarChar(512)
+  value          Float       @db.Float
+  type           Int         @db.TinyInt
+  dt_start       DateTime    @db.Date
+  dt_expiration  DateTime?   @db.Date
+  fix_finance    Boolean     @db.TinyInt
+  repeat_finance DateTime?   @db.Date
+  pet            Pet?        @relation(fields: [petId], references: [id])
   petId          String?
-  procedure      Procedure? @relation(fields: [procedureId], references: [id])
-  procedureId    String?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  procedures     Procedure[]
+  stock          Stock?      @relation(fields: [stockId], references: [id])
+  stockId        String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  activated      Boolean     @default(true)
+  deletedAt      DateTime?
 
   @@index([petId])
-  @@index([procedureId])
+  @@index([stockId])
   @@map("finances")
 }
+
+enum FinanceType {
+  RECEITA
+  DESPESA
+}
+
+//---------------------------------- STOCK --------------------------------------
 
 model Stock {
   id            String    @id @default(uuid())
@@ -89,8 +145,49 @@ model Stock {
   type          Int       @db.TinyInt
   amount        Float     @db.Float
   dt_expiration DateTime? @db.Date
+  finances      Finance[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+  activated     Boolean   @default(true)
+  deletedAt     DateTime?
 
   @@map("stock")
+}
+
+enum ItemType {
+  REMEDIO
+  VACINA
+  COMIDA
+  PETISCO
+}
+
+//-------------------------------- ADOPTIONS -----------------------------------------
+
+model Adoption {
+  id          String    @id @default(uuid())
+  description String?   @db.VarChar(512)
+  status      Status
+  pets        Pet[]
+  Tutor       Tutor?    @relation(fields: [tutorId], references: [id])
+  tutorId     String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  activated   Boolean   @default(true)
+  deletedAt   DateTime?
+
+  @@index([tutorId])
+  @@map("adoptions")
+}
+
+enum Status {
+  PENDENTE
+  CONCLUIDA
+  CANCELADA
+}
+
+//---------------------------------- GLOBAL -----------------------------------------
+
+enum Gender {
+  M
+  F
 }

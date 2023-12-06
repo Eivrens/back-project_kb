@@ -1,14 +1,18 @@
-import { situationPet, speciesPet } from 'src/shared/enums/pet.enum';
+import { $Enums } from '@prisma/client';
 
 export class Pet {
   id?: string;
   name: string;
-  dt_birth: Date | string;
-  gender: string;
+  dt_birth: Date;
+  gender: $Enums.Gender;
   color: string;
   description: string;
-  species?: speciesPet;
-  situation?: situationPet;
-  createdAt?: Date | string;
-  updatedAt?: Date | string;
+  species: $Enums.Species;
+  situation: $Enums.Situation;
+  tutorId?: string;
+  adoptionId?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  activated: boolean;
+  deletedAt: Date | null;
 }

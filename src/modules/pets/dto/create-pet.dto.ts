@@ -1,12 +1,6 @@
+import { $Enums } from '@prisma/client';
 import { Pet } from '../entities/pet.entity';
-import {
-  IsString,
-  IsNumber,
-  Length,
-  MaxLength,
-  IsIn,
-  IsISO8601,
-} from 'class-validator';
+import { IsString, Length, IsIn, IsISO8601 } from 'class-validator';
 
 export class CreatePetDTO extends Pet {
   @IsString()
@@ -15,11 +9,11 @@ export class CreatePetDTO extends Pet {
 
   @IsString()
   @IsISO8601()
-  dt_birth: string | Date;
+  dt_birth: Date;
 
   @IsString()
-  @MaxLength(1)
-  gender: string;
+  @IsIn(['M', 'F'])
+  gender: $Enums.Gender;
 
   @IsString()
   @Length(1, 20)
@@ -29,11 +23,11 @@ export class CreatePetDTO extends Pet {
   @Length(1, 255)
   description: string;
 
-  @IsNumber()
-  @IsIn([1, 2])
-  species?: number;
+  @IsString()
+  @IsIn(['GATO', 'CACHORRO'])
+  species: $Enums.Species;
 
-  @IsNumber()
-  @IsIn([1, 2, 3])
-  situation?: number;
+  @IsString()
+  @IsIn(['ACOLHIDO', 'DISPONIVEL', 'ADOTADO'])
+  situation: $Enums.Situation;
 }
